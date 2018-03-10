@@ -1,25 +1,58 @@
 #!/bin/bash
 
-# Pass escaped aserisk to compute hash for all files in the directory, e.g.:
-# sh s3bot.sh create "*" checksums.txt
-create_checksums () {
-    echo "################################################################################"
-    echo "# Creating checksums...                                                        #"
-    echo "################################################################################"
-    for filename in $1; do
-        md5_base64=$(openssl dgst -md5 -binary $filename | openssl enc -base64)
-        output="$md5_base64 $filename"
-        echo $output
-        echo $output >> $2
+###################################################################################################
+#                                                                                                 #
+# s3bot                                                                                           #
+# Assisting to ensure file integrity with S3                                                      #
+#                                                                                                 #
+# (C) 2018                                                                                        #
+#                                                                                                 #
+###################################################################################################
+
+###################################################################################################
+# Global variables                                                                                #
+###################################################################################################
+
+hr1="================================================================================"
+hr2="--------------------------------------------------------------------------------"
+
+###################################################################################################
+# Functions                                                                                       #
+###################################################################################################
+
+# Compute checksums (md5, base64 encoded) for all files in a given source directory and write them
+# into a given source file.
+# $1 - Source directory containing files for which checksums will be computed
+# $2 - Target file into which the checksums (and respective file names) will be written
+
+function compute_checksums {
+    printf "%s\n"                   \
+           "$hr2"                   \
+           "Computing checksums..." \
+           "$hr2"                   \
+           "Source directory: $1"   \
+           "Target file:      $2"   \
+           "$hr2"                   \
+	   ""
+
+    cd $1 > /dev/null
+    for file in *; do
+	checksum=$(openssl dgst -md5 -binary $file | openssl enc -base64)
+	cd - > /dev/null
+	printf "%s %s\n" "$checksum" "$file" | tee -a $2
+	cd $1 > /dev/null
     done
-    echo "################################################################################"
-    echo "# Done.                                                                        #"
-    echo "################################################################################"
+    cd - > /dev/null
+
+    printf "%s\n"                      \
+	   ""                          \
+	   "$hr2"                      \
+           "Done computing checksums!" \
+	   "$hr2"                      \
+	   ""
 }
 
-# Pass name of file that contains the file names and their checksums, e.g.:
-# sh s3bot.sh checksums.txt
-verify_checksums () {
+function verify_checksums {
     echo "################################################################################"
     echo "# Verifing checksums...                                                        #"
     echo "################################################################################"
@@ -44,7 +77,7 @@ verify_checksums () {
 # $2 target_bucket
 # $3 target_folder
 # $4 log_file
-upload () {
+function upload_files {
     echo "################################################################################"
     echo "# Uploading files...                                                           #"
     echo "################################################################################"
@@ -73,28 +106,32 @@ upload () {
     echo "################################################################################"
 }
 
-echo "################################################################################"
-echo "#                                                                              #"
-echo "# =====                                                                        #"
-echo "# s3bot                                                                        #"
-echo "# =====                                                                        #"
-echo "# Avoid file corruption on S3                                                  #"
-echo "# Obviously poorly written by @lambdarookie                                    #"
-echo "#                                                                              #"
-echo "################################################################################"
+###################################################################################################
+# control flow                                                                                    #
+###################################################################################################
 
+printf "%s\n"                                       \
+       "$hr1"                                       \
+       ""                                           \
+       "s3bot"                                      \
+       "Assisting to ensure file integrity with S3" \
+       ""                                           \
+       "(C) 2018"                                   \
+       ""                                           \
+       "$hr1"                                       \
+       ""
 
-if [ "$1" = "create" ]
+if [ "$1" = "compute_checksums" ]
 then
-    create_checksums "$2" "$3"
+    compute_checksums ${2%/} "${2%/}/$(basename $2).md5base64"
 fi
 
-if [ "$1" = "verify" ]
+if [ "$1" = "verify_checksums" ]
 then
     verify_checksums "$2"
 fi
 
-if [ "$1" = "upload" ]
+if [ "$1" = "upload_files" ]
 then
-    upload $2 $3 $4 $5
+    upload_files $2 $3 $4 $5
 fi
