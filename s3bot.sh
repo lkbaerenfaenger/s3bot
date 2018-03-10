@@ -3,8 +3,6 @@
 ###################################################################################################
 #                                                                                                 #
 # s3bot                                                                                           #
-# Assisting to ensure file integrity with S3                                                      #
-#                                                                                                 #
 # (C) 2018                                                                                        #
 #                                                                                                 #
 ###################################################################################################
@@ -20,10 +18,15 @@ hr2="---------------------------------------------------------------------------
 # Functions                                                                                       #
 ###################################################################################################
 
+# compute_checksums
+#
 # Compute checksums (md5, base64 encoded) for all files in a given source directory and write them
 # into a given source file.
-# $1 - Source directory containing files for which checksums will be computed
-# $2 - Target file into which the checksums (and respective file names) will be written
+#
+# $1 - Source directory
+# $2 - Target file
+#
+# Sample call: compute_checksums ~/Documents/Books/ ~/Documents/Books.md5base64
 
 function compute_checksums {
     printf "%s\n"                   \
@@ -52,25 +55,48 @@ function compute_checksums {
 	   ""
 }
 
+# verify_checksums
+#
+# Given a source file that contains the names and checksums of files, and a source directory in
+# which these files live, verify that they have not been corrupted, i.e, still correspond to the
+# given checksums.
+#
+# $1 - Source file
+# $2 - Source directory
+#
+# Sample call: verify_checksums ~/Documents/Books.md5base64 ~/Documents/Books
+
 function verify_checksums {
-    echo "################################################################################"
-    echo "# Verifing checksums...                                                        #"
-    echo "################################################################################"
-    while read line
-    do
-        filename=$(echo $line | awk {'print $2'})
-        old_hash=$(echo $line | awk {'print $1'})
-        new_hash=$(openssl dgst -md5 -binary $filename | openssl enc -base64)
-        if [ "$old_hash" = "$new_hash" ]
-        then
-            echo "$filename: OK"
+    printf "%s\n"                   \
+           "$hr2"                   \
+           "Verifying checksums..." \
+           "$hr2"                   \
+           "Source file:      $1"   \
+           "Source directory: $2"   \
+	   "$hr2"                   \
+	   ""
+
+    cd $2 > /dev/null
+
+    while read line; do
+        file=$(printf "%s" "$line" | awk {'print $2'})
+        source_checksum=$(printf "%s" "$line" | awk {'print $1'})
+        current_checksum=$(openssl dgst -md5 -binary $file | openssl enc -base64)
+        if [ "$source_checksum" = "$current_checksum" ]; then
+            printf "PASS: %s\n" "$file"
         else 
-            echo "$filename: FAIL"
+            printf "FAIL: %s\n" "$file"
         fi
     done < $1
-    echo "################################################################################"
-    echo "# Done.                                                                        #"
-    echo "################################################################################"
+
+    cd - > /dev/null
+
+    printf "%s\n"                      \
+	   ""                          \
+	   "$hr2"                      \
+           "Done verifying checksums!" \
+	   "$hr2"                      \
+	   ""
 }
 
 # $1 checksums_file
@@ -107,15 +133,13 @@ function upload_files {
 }
 
 ###################################################################################################
-# control flow                                                                                    #
+# Control flow                                                                                    #
 ###################################################################################################
 
 printf "%s\n"                                       \
        "$hr1"                                       \
        ""                                           \
        "s3bot"                                      \
-       "Assisting to ensure file integrity with S3" \
-       ""                                           \
        "(C) 2018"                                   \
        ""                                           \
        "$hr1"                                       \
@@ -128,7 +152,7 @@ fi
 
 if [ "$1" = "verify_checksums" ]
 then
-    verify_checksums "$2"
+    verify_checksums "$2" "$(dirname $2)"
 fi
 
 if [ "$1" = "upload_files" ]
