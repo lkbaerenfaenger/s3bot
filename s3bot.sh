@@ -111,8 +111,8 @@ function verify_checksums {
 # upload_files
 #
 # Given a source file that contains the names and checksums of files, and a source directory in
-# which these files live, upload them to S3, into a given target folder within a given target
-# bucket. Also, log the process into a given target file.
+# which these files live, upload them as well as the checksums file to S3, into a given target
+# folder within a given target bucket. Also, log the process into a given target file.
 #
 # Parameters:
 # $1 - source file (which contains the names and checksums of the files which will be uploaded)
@@ -122,7 +122,7 @@ function verify_checksums {
 # $5 - target file (into which logs of the upload process will be written)
 #
 # Sample call:
-# upload_files ~/Documents/Books ~/Documents/Books.md5base64 s3bucket s3folder ~/Documents/Books.log
+# upload_files ~/Documents/Books.md5base64 ~/Documents/Books s3bucket s3folder ~/Documents/Books.log
 
 function upload_files {
     printf "%s\n"              \
@@ -162,7 +162,17 @@ function upload_files {
         printf "\n" | tee -a $5
     done < $1
 
+    checksums_file=$(basename $1)
+    put_cmd_checksums_file="aws s3api put-object --bucket $3 --key $4/$checksums_file --body $1"
+    get_cmd_checksums_file="aws s3api head-object --bucket $3 --key $4/$checksums_file"
+    printf "%s\n"                       \
+        "==> File:     $checksums_file" \
+        "" | tee -a $5
+    $put_cmd_checksums_file 2>&1 | tee -a $5
+    $get_cmd_checksums_file 2>&1 | tee -a $5
+
     printf "%s\n"               \
+        ""                      \
         "$hr2"                  \
         "Done uploading files!" \
         "$hr2"                  \
