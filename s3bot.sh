@@ -115,11 +115,11 @@ function verify_checksums {
 # folder within a given target bucket. Also, log the process into a given target file.
 #
 # Parameters:
-# $1 - source file (which contains the names and checksums of the files which will be uploaded)
-# $2 - source directory (where these files live)
-# $3 - target bucket (into which these files will be uploaded)
-# $4 - target folder (into which these files will be uploaded)
-# $5 - target file (into which logs of the upload process will be written)
+# $1 - Source file (which contains the names and checksums of the files which will be uploaded)
+# $2 - Source directory (where these files live)
+# $3 - Target bucket (into which these files will be uploaded)
+# $4 - Target folder (into which these files will be uploaded)
+# $5 - Target file (into which logs of the upload process will be written)
 #
 # Sample call:
 # upload_files ~/Documents/Books.md5base64 ~/Documents/Books s3bucket s3folder ~/Documents/Books.log
@@ -235,8 +235,8 @@ fi
 # three steps may also be called individually, allowing for more flexibility.
 #
 # Parameters:
-# $2 - source directory (where the files that are to be uploaded live)
-# $3 - target bucket (into which these will be uploaded)
+# $2 - Source directory (where the files that are to be uploaded live)
+# $3 - Target bucket (into which these will be uploaded)
 #
 # Sample call:
 # bash s3bot.sh quick_run ~/Documents/Books s3bucket
