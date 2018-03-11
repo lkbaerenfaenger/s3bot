@@ -173,18 +173,44 @@ printf "%s\n"                                       \
        "$hr1"                                       \
        ""
 
-if [ "$1" = "compute_checksums" ]
-then
-    compute_checksums ${2%/} "${2%/}/$(basename $2).md5base64"
+if [ "$1" = "compute_checksums" ]; then
+#   compute_checksums source directory, target file
+    compute_checksums $2                $3
 fi
 
-if [ "$1" = "verify_checksums" ]
-then
-    verify_checksums "$2" "$(dirname $2)"
+if [ "$1" = "verify_checksums" ]; then
+#   verify_checksums source file, source directory 
+    verify_checksums $2           $3
 fi
 
-if [ "$1" = "upload_files" ]
-then
-    upload_files $2 $3 $4 $5 $6
+if [ "$1" = "upload_files" ]; then
+#   upload_files source file, source directory, target bucket, target folder, target file
+    upload_files $2           $3                $4             $5             $6
+fi
+
+# full run 
+#
+# $2 source directory
+# $3 target bucket
+# $4 target folder
+if [ "$1" = "go" ]; then
+    checksums_file="${2%/}/$(basename $2).md5base64"
+    logs_file="${2%/}/$(basename $2).logs"
+	
+#   compute_checksums source directory, target file
+    compute_checksums $2                $checksums_file
+
+#   verify_checksums source file,    source directory 
+    verify_checksums $checksums_file $2
+
+    read -p "Continue? (y/n)" cont
+    if [ "$cont" = "n" ]; then
+        exit
+    fi
+
+    printf "\n"
+
+#   upload_files source file,    source directory, target bucket, target folder, target file
+    upload_files $checksums_file $2                $3             $4             $logs_file      
 fi
 
