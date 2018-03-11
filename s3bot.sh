@@ -23,9 +23,11 @@ hr2="---------------------------------------------------------------------------
 
 # compute_checksums
 #
+# Description:
 # Compute checksums (md5, base64 encoded) for all files in a given source directory and write them
 # into a given target file.
 #
+# Parameters:
 # $1 - Source directory (where the files live for which checksums will be computed)
 # $2 - Target file (into which the names and checksums of these files will be written)
 #
@@ -61,14 +63,17 @@ function compute_checksums {
 
 # verify_checksums
 #
+# Description:
 # Given a source file that contains the names and checksums of files, and a source directory in
 # which these files live, verify that these have not been corrupted, i.e, still correspond to the
 # given checksums.
 #
+# Parameters:
 # $1 - Source file (which contains the names and checksums of the files which will be verified)
 # $2 - Source directory (where these files live)
 #
-# Sample call: verify_checksums ~/Documents/Books.md5base64 ~/Documents/Books
+# Sample call:
+# verify_checksums ~/Documents/Books.md5base64 ~/Documents/Books
 
 function verify_checksums {
     printf "%s\n"                \
@@ -109,6 +114,7 @@ function verify_checksums {
 # which these files live, upload them to S3, into a given target folder within a given target
 # bucket. Also, log the process into a given target file.
 #
+# Parameters:
 # $1 - source file (which contains the names and checksums of the files which will be uploaded)
 # $2 - source directory (where these files live)
 # $3 - target bucket (into which these files will be uploaded)
@@ -116,7 +122,7 @@ function verify_checksums {
 # $5 - target file (into which logs of the upload process will be written)
 #
 # Sample call:
-# upload_files ~/Documents/Books ~/Documents/Books.md5base64 bucket folder ~/Documents/Books.log
+# upload_files ~/Documents/Books ~/Documents/Books.md5base64 s3bucket s3folder ~/Documents/Books.log
 
 function upload_files {
     printf "%s\n"              \
@@ -191,18 +197,44 @@ fi
 
 if [ "$1" = "upload_files" ]; then
     # Parameters: source file | source directory | target bucket | target folder | target file
-    upload_files  $2             $3                 $4             $5               $6
+    upload_files  $2            $3                 $4              $5              $6
 fi
 
 # quick_run
 #
-# $2 source directory
-# $3 target bucket
-# $4 target folder
+# Description:
+# Given a source directory containing files, and a target S3 bucket into which these files are to be
+# uploaded, a quick run performs the following steps:
+# 1. Compute checksums (md5, base64 encoded) for all the files and write them (along with the
+#    respective file names) into a file called <name_of_the_folder_containing_the_files>.md5base64,
+#    which will be placed next to the files inside the given source directory.
+# 2. Verify that for each file name listed in the previously created checksums file, the checksum
+#    stated next to the file name is still the checksum of the corresponding file. At this point,
+#    this is obviously unnecessary, as the checksums file has been created shortly before, and it is
+#    unlikely that any file has been corrupted since then. However, calling this function later is
+#    very useful, e.g., after downloading the files back from S3.
+# 3. All the files listed in the checksums file (i.e., all the files in the given source directory)
+#    are uploaded to S3, along with their checksums. The checksums file itself is also being
+#    uploaded. If something goes wrong, an error message is being displayed. More details on how the
+#    files are uploaded along with their checksums can be found here:
+#    https://aws.amazon.com/premiumsupport/knowledge-center/data-integrity-s3/
+#    All the output that is being displayed while uploading is logged into a file called
+#    <name_of__the_folder_containing_the_files>.logs, which will also be placed into the given
+#    source directory, but not uploaded.
+# The quick run option exists for convenience purposes, only two arguments are expected. Each of the
+# three steps may also be called individually, allowing for more flexibility.
+#
+# Parameters:
+# $2 - source directory (where the files that are to be uploaded live)
+# $3 - target bucket (into which these will be uploaded)
+#
+# Sample call:
+# bash s3bot.sh quick_run ~/Documents/Books s3bucket
 
 if [ "$1" = "quick_run" ]; then
-    checksums_file="${2%/}/$(basename $2).md5base64"
-    logs_file="${2%/}/$(basename $2).logs"
+    src_dir_base=$(basename $2)
+    checksums_file="${2%/}/$src_dir_base.md5base64"
+    logs_file="${2%/}/$src_dir_base.logs"
 
     # Parameters:     source directory | target file
     compute_checksums $2                 $checksums_file
@@ -218,5 +250,5 @@ if [ "$1" = "quick_run" ]; then
     printf "\n"
 
     # Parameters: source file     | source directory | target bucket | target folder | target file
-    upload_files  $checksums_file   $2                 $3              $4              $logs_file
+    upload_files  $checksums_file   $2                 $3              $src_dir_base   $logs_file
 fi
