@@ -24,7 +24,7 @@ hr2="---------------------------------------------------------------------------
 # compute_checksums
 #
 # Description:
-# Compute checksums (md5, base64 encoded) for all files in a given source directory and write them
+# Compute checksums (md5, base64-encoded) for all files in a given source directory and write them
 # into a given target file.
 #
 # Parameters:
@@ -215,7 +215,7 @@ fi
 # Description:
 # Given a source directory containing files, and a target S3 bucket into which these files are to be
 # uploaded, a quick run performs the following steps:
-# 1. Compute checksums (md5, base64 encoded) for all the files and write them (along with the
+# 1. Compute checksums (md5, base64-encoded) for all the files and write them (along with the
 #    respective file names) into a file called <name_of_the_folder_containing_the_files>.md5base64,
 #    which will be placed next to the files inside the given source directory.
 # 2. Verify that for each file name listed in the previously created checksums file, the checksum
@@ -229,7 +229,7 @@ fi
 #    files are uploaded along with their checksums can be found here:
 #    https://aws.amazon.com/premiumsupport/knowledge-center/data-integrity-s3/
 #    All the output that is being displayed while uploading is logged into a file called
-#    <name_of__the_folder_containing_the_files>.logs, which will also be placed into the given
+#    <name_of_the_folder_containing_the_files>.logs, which will also be placed into the given
 #    source directory, but not uploaded.
 # The quick run option exists for convenience purposes, only two arguments are expected. Each of the
 # three steps may also be called individually, allowing for more flexibility.

@@ -30,7 +30,7 @@ Enjoy!
 
 Given a source directory containing files, and a target S3 bucket into which these files are to be uploaded, a quick run performs the following steps:
 
-1. Compute checksums (md5, base64 encoded) for all the files and write them (along with the respective file names) into a file called `<name_of_the_folder_containing_the_files>.md5base64`, which will be placed next to the files inside the given source directory.
+1. Compute checksums (md5, base64-encoded) for all the files and write them (along with the respective file names) into a file called `<name_of_the_folder_containing_the_files>.md5base64`, which will be placed next to the files inside the given source directory.
 
 2. Verify that for each file name listed in the previously created checksums file, the checksum stated next to the file name is still the checksum of the corresponding file.
    At this point, this is obviously unnecessary, as the checksums file has been created shortly before, and it is unlikely that any file has been corrupted since then.
@@ -41,7 +41,7 @@ Given a source directory containing files, and a target S3 bucket into which the
    If something goes wrong, an error message is being displayed.
    More details on how the files are uploaded along with their checksums can be found here:
    https://aws.amazon.com/premiumsupport/knowledge-center/data-integrity-s3/
-   All the output that is being displayed while uploading is logged into a file called `<name_of__the_folder_containing_the_files>.logs`, which will also be placed into the given source directory, but not uploaded.
+   All the output that is being displayed while uploading is logged into a file called `<name_of_the_folder_containing_the_files>.logs`, which will also be placed into the given source directory, but not uploaded.
 
 The quick run option exists for convenience purposes, only two arguments are expected.
 Each of the three steps may also be called individually, allowing for more flexibility.
@@ -55,13 +55,13 @@ Each of the three steps may also be called individually, allowing for more flexi
 > Sample call:<br>
 > `bash s3bot.sh compute_checksums ~/Documents/Books/ ~/Documents/Books.md5base64`
 
-Compute checksums (md5, base64 encoded) for all files in a given source directory and write them into a given target file.
+Compute checksums (md5, base64-encoded) for all files in a given source directory and write them into a given target file.
 
 ### `verify_checksums`
 
 > Parameters:<br>
-> $1 Source file (which contains the names and checksums of the files which will be verified)<br>
-> $2 Source directory (where these files live)
+> $1 - Source file (which contains the names and checksums of the files which will be verified)<br>
+> $2 - Source directory (where these files live)
 
 > Sample call:<br>
 > `bash s3bot.sh verify_checksums ~/Documents/Books.md5base64 ~/Documents/Books`
