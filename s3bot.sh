@@ -26,7 +26,8 @@ hr2="---------------------------------------------------------------------------
 # $1 - Source directory
 # $2 - Target file
 #
-# Sample call: compute_checksums ~/Documents/Books/ ~/Documents/Books.md5base64
+# Sample call:
+# compute_checksums ~/Documents/Books/ ~/Documents/Books.md5base64
 
 function compute_checksums {
     printf "%s\n"                   \
@@ -99,37 +100,64 @@ function verify_checksums {
 	   ""
 }
 
-# $1 checksums_file
-# $2 target_bucket
-# $3 target_folder
-# $4 log_file
-function upload_files {
-    echo "################################################################################"
-    echo "# Uploading files...                                                           #"
-    echo "################################################################################"
-    while read line
-    do
-        filename=$(echo $line | awk {'print $2'})
-        hash=$(echo $line | awk {'print $1'})
-        put_cmd="aws s3api put-object\
-             --bucket $2\
-             --key $3/$filename\
-             --body $filename\
-             --metadata md5chksum=$hash\
-             --content-md5 $hash"
-        head_cmd="aws s3api head-object
-             --bucket $2
-             --key $3/$filename"
+# upload_files
+#
+# Given a source file that contains the names and checksums of files, and a source directory in
+# which these files live, upload them to S3, into a given target folder within a given target
+# bucket. Also, log the process into a given target file.
+# 
+# $1 - source file
+# $2 - source directory
+# $3 - target bucket
+# $4 - target folder
+# $5 - target file
+#
+# Sample call:
+# upload_files ~/Documents/Books ~/Documents/Books.md5base64 bucket folder ~/Documents/Books.log
 
-        echo "================================================================================" | tee -a $4
-        echo "Uploading $filename with checksum $hash..." | tee -a $4
-        echo "================================================================================"| tee -a $4
-        $put_cmd   2>&1 | tee -a $4
-        $head_cmd  2>&1 | tee -a $4
+function upload_files {
+    printf "%s\n"                 \
+           "$hr2"                 \
+           "Uploading files..."   \
+           "$hr2"                 \
+           "Source file:      $1" \
+           "Source directory: $2" \
+	   "Target bucket:    $3" \
+	   "Target folder:    $4" \
+	   "Target file:      $5" \
+	   "$hr2"                 \
+	   "" | tee -a $5
+    
+    while read line; do
+        file=$(printf "%s" "$line" | awk {'print $2'})
+        checksum=$(printf "%s" "$line" | awk {'print $1'})
+        
+	put_cmd="aws s3api put-object
+             --bucket $3
+             --key $4/$file
+             --body $2/$file
+             --metadata md5chksum=$checksum
+             --content-md5 $checksum"
+        head_cmd="aws s3api head-object
+             --bucket $3
+             --key $4/$file"
+    
+        printf "%s\n"                    \
+               "==> File:     $file"     \
+               "==> Checksum: $checksum" \
+               "" | tee -a $5
+
+        $put_cmd  2>&1 | tee -a $5
+	$head_cmd 2>&1 | tee -a $5
+
+	printf "\n" | tee -a $5
     done < $1
-    echo "################################################################################"
-    echo "# Done.                                                                        #"
-    echo "################################################################################"
+ 
+    printf "%s\n"                  \
+	   "$hr2"                  \
+           "Done uploading files!" \
+	   "$hr2"                  \
+	   "" | tee -a $5
 }
 
 ###################################################################################################
@@ -157,5 +185,6 @@ fi
 
 if [ "$1" = "upload_files" ]
 then
-    upload_files $2 $3 $4 $5
+    upload_files $2 $3 $4 $5 $6
 fi
+
