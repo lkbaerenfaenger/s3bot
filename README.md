@@ -2,7 +2,7 @@
 
 A simple command-line tool to preserve file integrity while uploading to S3
 
-> Free to use - at your own risk!<br>
+> Free to use -- at your own risk!<br>
 > (C) Lucas Baerenfaenger 2018
 
 ![s3bot](s3bot.png)
