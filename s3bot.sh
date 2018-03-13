@@ -5,7 +5,7 @@
 # s3bot                                                                                            #
 # A simple command-line tool to preserve file integrity while uploading to S3                      #
 #                                                                                                  #
-# Free to use - at your own risk!                                                                  #
+# Free to use -- at your own risk!                                                                  #
 # (C) Lucas Baerenfaenger 2018                                                                     #
 #                                                                                                  #
 ####################################################################################################
