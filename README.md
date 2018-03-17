@@ -9,7 +9,7 @@ A simple command-line tool to preserve file integrity while uploading to S3
 
 ## Why?
 AWS S3 is great for storing your files -- it's cheap and durable!
-And once you have your files there, you can use the even cheaper long-term storage service Glacier!
+And once your your files got there, you can even make use of the long-term storage service Glacier!
 However, to preserve file integrity while uploading to S3, you have to supply md5 checksums that are base64-encoded.
 Furthermore, with the AWS CLI, it is tedious to upload files alongside their checksums.
 The s3bot command-line tools sets out to remedy the situation by automating the checksum computation/verification as well as the upload process.
