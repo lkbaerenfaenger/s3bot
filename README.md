@@ -22,7 +22,7 @@
 
 ## 1. Overview
 
-AWS S3 is great for storing your files -- it's cheap and durable!
+AWS S3 is great for storing your files — it's cheap and durable!
 And once your your files got there, you can even make use of the long-term storage service Glacier!
 However, to preserve file integrity while uploading to S3, you have to supply md5 checksums that are base64-encoded.
 Furthermore, with the AWS CLI, it is tedious to upload files alongside their checksums.
