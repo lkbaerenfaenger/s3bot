@@ -1,13 +1,27 @@
 # s3bot
 
-A simple command-line tool to preserve file integrity while uploading to S3
-
-> Free to use -- at your own risk!<br>
-> (C) Lucas Baerenfaenger 2018
+**A simple command-line tool to preserve file integrity while uploading to S3**
 
 ![s3bot](s3bot.png)
 
-## Why?
+---
+
+* **s3bot** has been created by Lucas Baerenfaenger ([@lambdarookie](https://github.com/lambdarookie), [lambdarookie.com](https://lambdarookie.com)).
+* It is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+---
+
+1. [Overview](#1-overview)
+2. [Usage](#2-usage)
+   1. [`quick_run`](#21-quick_run)
+   2. [`compute_checksums`](#22-compute_checksums)
+   3. [`verify_checksums`](#23-verify_checksums)
+   4. [`upload_files`](#24-upload_files)
+
+---
+
+## 1. Overview
+
 AWS S3 is great for storing your files -- it's cheap and durable!
 And once your your files got there, you can even make use of the long-term storage service Glacier!
 However, to preserve file integrity while uploading to S3, you have to supply md5 checksums that are base64-encoded.
@@ -17,9 +31,9 @@ In fact, with the `quick_run` option, all you have to do is specify a source dir
 The only prerequisite is a configured AWS CLI.
 Enjoy!
 
-## How?
+## 2. Usage
 
-### `quick_run`
+### 2.1. `quick_run`
 
 > Parameters:<br>
 > $1 - Source directory (where the files that are to be uploaded live)<br>
@@ -46,7 +60,7 @@ Given a source directory containing files, and a target S3 bucket into which the
 The quick run option exists for convenience purposes, only two arguments are expected.
 Each of the three steps may also be called individually, allowing for more flexibility.
 
-### `compute_checksums`
+### 2.2. `compute_checksums`
 
 > Parameters:<br>
 > $1 - Source directory (where the files live for which checksums will be computed)<br>
@@ -57,7 +71,7 @@ Each of the three steps may also be called individually, allowing for more flexi
 
 Compute checksums (md5, base64-encoded) for all files in a given source directory and write them into a given target file.
 
-### `verify_checksums`
+### 2.3 `verify_checksums`
 
 > Parameters:<br>
 > $1 - Source file (which contains the names and checksums of the files which will be verified)<br>
@@ -68,7 +82,7 @@ Compute checksums (md5, base64-encoded) for all files in a given source director
 
 Given a source file that contains the names and checksums of files, and a source directory in which these files live, verify that these have not been corrupted, i.e, still correspond to the given checksums.
 
-### `upload_files`
+### 2.4 `upload_files`
 
 > Parameters:<br>
 > $1 - Source file (which contains the names and checksums of the files which will be uploaded)<br>
